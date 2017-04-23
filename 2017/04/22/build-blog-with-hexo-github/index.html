@@ -22,7 +22,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/04/22/build-blog-with-hexo-github/index.html">
 <meta property="og:site_name" content="胡江鹭 | 博客">
 <meta property="og:description" content="本文主要讲述如何使用Hexo+GitHub来搭建个人博客，搭建的平台是Ubuntu 16.04。从创建GitHub仓库，到安装git、node.js、npm和hexo，讲述了如何来搭建环境。后面还对如何添加页面、添加博文和预览页面，以及如何将这些内容推送到GitHub上进行了详细的讲述，非常适合新手参考。">
-<meta property="og:updated_time" content="2017-04-23T08:44:27.834Z">
+<meta property="og:updated_time" content="2017-04-23T08:51:47.297Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="使用Hexo+GitHub搭建个人博客">
 <meta name="twitter:description" content="本文主要讲述如何使用Hexo+GitHub来搭建个人博客，搭建的平台是Ubuntu 16.04。从创建GitHub仓库，到安装git、node.js、npm和hexo，讲述了如何来搭建环境。后面还对如何添加页面、添加博文和预览页面，以及如何将这些内容推送到GitHub上进行了详细的讲述，非常适合新手参考。">
@@ -144,7 +144,7 @@
                     <nav class="header-menu">
                         <ul>
                         
-                            <li><a href="/">个人主页</a></li>
+                            <li><a href="/">博客主页</a></li>
                         
                             <li><a href="/categories/MachineLearning/">机器学习</a></li>
                         
@@ -226,7 +226,7 @@
             <nav class="header-menu">
                 <ul>
                 
-                    <li><a href="/">个人主页</a></li>
+                    <li><a href="/">博客主页</a></li>
                 
                     <li><a href="/categories/MachineLearning/">机器学习</a></li>
                 
@@ -340,7 +340,7 @@
 <p>执行上面的语句后会自动生成一个public文件夹，然后将public文件夹里面的文件全部拷贝到helloworld.github.io文件夹下，然后用git命令来将这些内容推送到GitHub上去（不懂的自己百度怎么推送），这样一个个人博客站点就搭建好了，赶紧去访问 <a href="https://helloworld.github.io" target="_blank" rel="external">https://helloworld.github.io</a> 来查看自己的站点吧！</p>
 <p>还有另外一种更便捷的方式来进行推送。<br>打开站点配置文件_config.yml，在末尾加入：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">deploy:</div><div class="line">  type: git</div><div class="line">  repo: https://github.com/helloworld/helloworld.github.io.git</div><div class="line">  branch: master</div></pre></td></tr></table></figure></p>
 <p>这样可以让Hexo和自己的GitHub进行关联，然后运行如下命令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ npm install hexo-deployer-git --save</div><div class="line">$ hexo generate</div><div class="line">$ hexo deploy</div></pre></td></tr></table></figure></p>
-<p>此时，就能完成自动推送了，不需要自己去复制文件。</p>
+<p>然后会提示输入自己GitHub的用户名和密码。此时，就能完成自动推送了，不需要自己去复制文件。</p>
 
       
     </div>
