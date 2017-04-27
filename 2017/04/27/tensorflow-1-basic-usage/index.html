@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="胡江鹭" />
+
+
+
+<meta name="description" content="TensorFlow是Google在2015年开源的深度学习框架，利用它可以很方便地来构建深度学习模型。本文首先对TensorFlow的运行流程进行了一个概述，随后对TensorFlow中的一些概念（Tensor, Variable, placeholder, Session）进行了描述。然后，针对mnist数据集的分类问题，本文从模型构建，模型训练到模型评估，从代码上实现了这一整个过程。">
+<meta name="keywords" content="TensorFlow,Python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TensorFlow系列（一）：TensorFlow的基本用法">
+<meta property="og:url" content="http://yoursite.com/2017/04/27/tensorflow-1-basic-usage/index.html">
+<meta property="og:site_name" content="胡江鹭 | 博客">
+<meta property="og:description" content="TensorFlow是Google在2015年开源的深度学习框架，利用它可以很方便地来构建深度学习模型。本文首先对TensorFlow的运行流程进行了一个概述，随后对TensorFlow中的一些概念（Tensor, Variable, placeholder, Session）进行了描述。然后，针对mnist数据集的分类问题，本文从模型构建，模型训练到模型评估，从代码上实现了这一整个过程。">
+<meta property="og:image" content="http://yoursite.com/2017/04/27/tensorflow-1-basic-usage/basic.jpg">
+<meta property="og:updated_time" content="2017-04-27T08:54:33.054Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TensorFlow系列（一）：TensorFlow的基本用法">
+<meta name="twitter:description" content="TensorFlow是Google在2015年开源的深度学习框架，利用它可以很方便地来构建深度学习模型。本文首先对TensorFlow的运行流程进行了一个概述，随后对TensorFlow中的一些概念（Tensor, Variable, placeholder, Session）进行了描述。然后，针对mnist数据集的分类问题，本文从模型构建，模型训练到模型评估，从代码上实现了这一整个过程。">
+<meta name="twitter:image" content="http://yoursite.com/2017/04/27/tensorflow-1-basic-usage/basic.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="胡江鹭 | 博客" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>TensorFlow系列（一）：TensorFlow的基本用法 | 胡江鹭 | 博客</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: undefined
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.png" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">胡江鹭</a></h1>
+        </hgroup>
+
+        
+
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">博客主页</a></li>
+                        
+                            <li><a href="/categories/MachineLearning/">机器学习</a></li>
+                        
+                            <li><a href="/categories/DeepLearning/">深度学习</a></li>
+                        
+                            <li><a href="/categories/LearningNotes/">学习笔记</a></li>
+                        
+                            <li><a href="/categories/Environment/">开发环境</a></li>
+                        
+                            <li><a href="/tags/">分类标签</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <br><br><br><br>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" href="https://github.com/hujianglu" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" href="https://www.zhihu.com/people/hu-jiang-lu/activities" title="知乎"></a>
+                            
+                                <a class="fa Email" href="mailto:hujianglu.hit@gmail.com" title="Email"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/C/">C++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PHP/">PHP</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Python/">Python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TensorFlow/">TensorFlow</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">胡江鹭</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.png" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">胡江鹭</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">博客主页</a></li>
+                
+                    <li><a href="/categories/MachineLearning/">机器学习</a></li>
+                
+                    <li><a href="/categories/DeepLearning/">深度学习</a></li>
+                
+                    <li><a href="/categories/LearningNotes/">学习笔记</a></li>
+                
+                    <li><a href="/categories/Environment/">开发环境</a></li>
+                
+                    <li><a href="/tags/">分类标签</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa GitHub" target="_blank" href="https://github.com/hujianglu" title="GitHub"></a>
+                            
+                                <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/hu-jiang-lu/activities" title="知乎"></a>
+                            
+                                <a class="fa Email" target="_blank" href="mailto:hujianglu.hit@gmail.com" title="Email"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-tensorflow-1-basic-usage" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/04/27/tensorflow-1-basic-usage/" class="article-date">
+      <time datetime="2017-04-27T03:12:18.000Z" itemprop="datePublished">2017-04-27</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      TensorFlow系列（一）：TensorFlow的基本用法
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/DeepLearning/">DeepLearning</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Python/">Python</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/TensorFlow/">TensorFlow</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>TensorFlow是Google在2015年开源的深度学习框架，利用它可以很方便地来构建深度学习模型。想要深入地学习TensorFlow，你可能需要做到以下几个方面：</p>
+<ul>
+<li>多看官方文档，在官方文档网站上有比较详细的教程。官方文档的网址： <a href="https://www.tensorflow.org/" target="_blank" rel="external">https://www.tensorflow.org/</a> 。当然对于一些英语不是很好的小伙伴来说，可以参考一下官方文档的汉化版：<a href="http://www.tensorfly.cn/" target="_blank" rel="external">TensorFlow中文社区</a>。汉化版可能因为更新不及时，和官方文档会存在一定的出入，主要以英文的官方文档为主。</li>
+<li>准备一本学习TensorFlow的书籍，这里推荐：《TensorFlow：实战Google深度学习框架》（才云科技Caicloud，郑泽宇，顾思宇 著）和《TensorFlow实战》（黄文坚，唐源 著）。</li>
+<li>在一边看书或者看官方文档学习的同时，多去自己动手实践，实践是检验真理的唯一标准！</li>
+<li>耐心也很重要，要想把TensorFlow学好，时刻要怀着一颗坚持下去的心，三天打鱼两天晒网是永远都学不好的。</li>
+</ul>
+<h2 id="TensorFlow的运行流程"><a href="#TensorFlow的运行流程" class="headerlink" title="TensorFlow的运行流程"></a>TensorFlow的运行流程</h2><p>tensorflow的运行流程主要有2步，分别是构造模型和训练。<br>在构造模型阶段，我们需要构建一个图(Graph)来描述我们的模型。所谓图，也可以理解为流程图，是将数据输入—&gt;中间处理—&gt;输出的过程表示出来，就像下面这样：</p>
+<p><center><img src="basic.jpg" width="24%/"></center><br>注意在构造模型阶段是不会发生实际运算的。在模型构建完毕以后，会进入训练步骤。此时才会有实际的数据输入，梯度计算等操作。那么，如何构建抽象的模型呢？这里就要提到TensorFlow中的几个重要的概念：Tensor, Variable, placeholder，而在训练阶段，则需要介绍Session。下面就来介绍这几个概念。</p>
+<h2 id="概念描述"><a href="#概念描述" class="headerlink" title="概念描述"></a>概念描述</h2><h3 id="Tensor"><a href="#Tensor" class="headerlink" title="Tensor"></a>Tensor</h3><p>Tensor的意思是张量，实质上就是指矩阵，可以理解为TensorFlow中矩阵的表示形式。Tensor的生成方式有很多种，最简单的就如：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf     <span class="comment"># 在下面所有代码中，都去掉了这一行，默认已经导入</span></div><div class="line">a = tf.zeros(shape=[<span class="number">1</span>,<span class="number">2</span>])</div></pre></td></tr></table></figure></p>
+<p>不过要注意，因为在训练开始前，所有的数据都是抽象的概念，也就是说，此时a只是表示这应该是个维数为[1, 2]的全零矩阵，而没有实际赋值，也没有分配空间，所以如果此时print，就会出现如下情况:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">print(a)</div><div class="line"><span class="comment">#===&gt;Tensor("zeros:0", shape=(1, 2), dtype=float32)</span></div></pre></td></tr></table></figure></p>
+<p>只有在训练过程开始后，才能获得a的实际值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sess = tf.InteractiveSession()</div><div class="line">print(sess.run(a))</div><div class="line"><span class="comment">#===&gt;[[ 0.  0.]]</span></div></pre></td></tr></table></figure></p>
+<p>这里涉及到Session概念，后面会提到。</p>
+<h3 id="Variable"><a href="#Variable" class="headerlink" title="Variable"></a>Variable</h3><p>故名思议，Variable是变量的意思。一般用来表示图中的各个计算参数，包括矩阵，向量等。例如，我要表示上面图中所构建的模型，那么表达式就是：<br>$$y=Relu(Wx+b)$$<br>上面的公式中，Relu是一种激活函数，W和b是我要用来训练的参数，那么此时这两个值就可以用Variable来表示。Variable的初始函数有很多其他选项，这里先不提，只输入一个Tensor也是可以的：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">W = tf.Variable(tf.zeros(shape=[<span class="number">1</span>, <span class="number">2</span>]))</div></pre></td></tr></table></figure></p>
+<p>注意，此时W一样是一个抽象的概念，而且与Tensor不同，Variable必须初始化以后才有具体的值。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">tensor = tf.zeros(shape=[<span class="number">1</span>, <span class="number">2</span>])</div><div class="line">variable = tf.Variable(tensor)</div><div class="line">sess = tf.InteractiveSession()</div><div class="line"><span class="comment"># print(sess.run(variable))  # 会报错</span></div><div class="line">sess.run(tf.initialize_all_variables()) <span class="comment"># 对variable进行初始化</span></div><div class="line">print(sess.run(variable))</div><div class="line"><span class="comment">#===&gt;[[ 0.  0.]]</span></div></pre></td></tr></table></figure></p>
+<h3 id="placeholder"><a href="#placeholder" class="headerlink" title="placeholder"></a>placeholder</h3><p>placeholder又叫占位符，同样是一个抽象的概念。用于表示输入输出数据的格式。告诉系统：这里有一个值/向量/矩阵，现在我没法给你具体数值，不过我正式运行的时候会补上的！例如上面公式中的x和y。因为没有具体数值，所以只要指定尺寸（维数）即可：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">x = tf.placeholder(tf.float32, [<span class="number">1</span>, <span class="number">5</span>], name=<span class="string">'input'</span>)</div><div class="line">y = tf.placeholder(tf.float32, [<span class="keyword">None</span>, <span class="number">5</span>], name=<span class="string">'output'</span>)</div></pre></td></tr></table></figure></p>
+<p>上面有两种维数的表示形式，第一种是x的表示形式，表示输入是一个[1, 5]的横向量。第二种是y的表示形式，表示输入是一个[?, 5]的矩阵。那么什么情况下会这么用呢？就是当“None”这个维度下的尺寸是可以根据输入数据进行自适应变化的时候，可以用“None”来表示，它可以是任何长度的。举个例子来说：当我需要输入10个尺寸为[1, 5]的数据的时候，那么TensorFlow会自动进行处理表示成[10, 5]的矩阵。当我需要输入5个的时候，那么就会自动解析成[5, 5]的矩阵。这是TensorFlow的一种机制，它会自动进行批处理。</p>
+<h3 id="Session"><a href="#Session" class="headerlink" title="Session"></a>Session</h3><p>session，也就是会话。session可以看成是抽象模型的实现者。为什么之前的代码多处要用到session？因为模型是抽象的，只有实现了模型以后，才能够得到具体的值。同样，具体的参数训练，预测，甚至变量的实际值查询，都要用到session，看后面就知道了。</p>
+<h2 id="模型构建"><a href="#模型构建" class="headerlink" title="模型构建"></a>模型构建</h2><p>这里我们使用官方tutorial中的mnist数据集的分类代码，公式可以写成：</p>
+<p><div align="center">$z=Wx+b$<br>$a=softmax(z)$</div><br>那么该模型的代码描述为：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line"><span class="comment"># 建立抽象模型</span></div><div class="line">x = tf.placeholder(<span class="string">"float"</span>, [<span class="keyword">None</span>, <span class="number">784</span>])        <span class="comment"># 输入占位符</span></div><div class="line">W = tf.Variable(tf.zeros([<span class="number">784</span>, <span class="number">10</span>]))</div><div class="line">b = tf.Variable(tf.zeros([<span class="number">10</span>]))</div><div class="line">y = tf.nn.softmax(tf.matmul(x, W) + b)          <span class="comment"># 表示模型的实际输出</span></div></pre></td></tr></table></figure></p>
+<p>上面先用了几行简短的代码来设置变量，然后只用了一行代码来定义我们的模型。TensorFlow不仅仅可以使softmax回归模型计算变得特别简单，它也用这种非常灵活的方式来描述其他各种数值计算，从机器学习模型对物理学模拟仿真模型。一旦被定义好之后，我们的模型就可以在不同的设备上运行：计算机的CPU，GPU，甚至是手机！</p>
+<h2 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h2><p>为了训练我们的模型，我们首先需要定义一个指标来评估这个模型是好的。其实，在机器学习，我们通常定义指标来表示一个模型是坏的，这个指标称为成本（cost）或损失（loss），然后尽量最小化这个指标。但是，这两种方式是相同的。<br>一个非常常见的，非常漂亮的成本函数是“交叉熵”（cross-entropy）。交叉熵产生于信息论里面的信息压缩编码技术，但是它后来演变成为从博弈论到机器学习等其他领域里的重要技术手段。它的定义如下：<br>$$H_{y’}(y)=-\sum_i y’_i\log(y_i)$$<br>$y$是我们预测的概率分布, $y’$是实际的分布（我们输入的one-hot vector)。比较粗糙的理解是，交叉熵是用来衡量我们的预测用于描述真相的低效性。为了计算交叉熵，我们首先需要添加一个新的占位符用于输入正确值：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">y_ = tf.placeholder(<span class="string">"float"</span>, [<span class="keyword">None</span>,<span class="number">10</span>])</div></pre></td></tr></table></figure></p>
+<p>然后我们计算交叉熵:<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cross_entropy = -tf.reduce_sum(y_*tf.log(y))</div></pre></td></tr></table></figure></p>
+<p>首先，用 tf.log 计算 y 的每个元素的对数。接下来，我们把 y<em> 的每一个元素和 tf.log(y</em>) 的对应元素相乘。最后，用 tf.reduce_sum 计算张量的所有元素的总和。（注意，这里的交叉熵不仅仅用来衡量单一的一对预测和真实值，而是所有100幅图片的交叉熵的总和。对于100个数据点的预测表现比单一数据点的表现能更好地描述我们的模型的性能。<br>现在我们知道我们需要我们的模型做什么啦，用TensorFlow来训练它是非常容易的。因为TensorFlow拥有一张描述你各个计算单元的图，它可以自动地使用反向传播算法(backpropagation algorithm)来有效地确定你的变量是如何影响你想要最小化的那个成本值的。然后，TensorFlow会用你选择的优化算法来不断地修改变量以降低成本。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">train_step = tf.train.GradientDescentOptimizer(<span class="number">0.01</span>).minimize(cross_entropy)    <span class="comment"># 训练目标：最小化损失函数</span></div></pre></td></tr></table></figure></p>
+<p>在这里，我们要求TensorFlow用梯度下降算法（gradient descent algorithm）以0.01的学习速率最小化交叉熵。梯度下降算法（gradient descent algorithm）是一个简单的学习过程，TensorFlow只需将每个变量一点点地往使成本不断降低的方向移动。<br>TensorFlow在这里实际上所做的是，它会在后台给描述你的计算的那张图里面增加一系列新的计算操作单元用于实现反向传播算法和梯度下降算法。然后，它返回给你的只是一个单一的操作，当运行这个操作时，它用梯度下降算法训练你的模型，微调你的变量，不断减少成本。<br>现在，我们已经设置好了我们的模型。在运行计算之前，我们需要添加一个操作来初始化我们创建的变量：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">init = tf.initialize_all_variables()</div></pre></td></tr></table></figure></p>
+<p>现在我们可以在一个Session里面启动我们的模型，并且初始化变量：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sess = tf.Session()</div><div class="line">sess.run(init)</div></pre></td></tr></table></figure></p>
+<p>然后开始训练模型，这里我们让模型循环训练1000次！<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1000</span>):</div><div class="line">    batch_xs, batch_ys = mnist.train.next_batch(<span class="number">100</span>)</div><div class="line">    sess.run(train_step, feed_dict=&#123;x: batch_xs, y_: batch_ys&#125;)</div></pre></td></tr></table></figure></p>
+<p>该循环的每个步骤中，我们都会随机抓取训练数据中的100个批处理数据点，然后我们用这些数据点作为参数替换之前的占位符来运行train_step。<br>使用一小部分的随机数据来进行训练被称为随机训练（stochastic training），在这里更确切的说是随机梯度下降训练。在理想情况下，我们希望用我们所有的数据来进行每一步的训练，因为这能给我们更好的训练结果，但显然这需要很大的计算开销。所以，每一次训练我们可以使用不同的数据子集，这样做既可以减少计算开销，又可以最大化地学习到数据集的总体特性。</p>
+<h2 id="模型评估"><a href="#模型评估" class="headerlink" title="模型评估"></a>模型评估</h2><p>首先让我们找出那些预测正确的标签。tf.argmax 是一个非常有用的函数，它能给出某个tensor对象在某一维上的其数据最大值所在的索引值。由于标签向量是由0, 1组成，因此最大值1所在的索引位置就是类别标签，比如tf.argmax(y, 1)返回的是模型对于任一输入x预测到的标签值，而 tf.argmax(y_, 1) 代表正确的标签，我们可以用 tf.equal 来检测我们的预测是否真实标签匹配(索引位置一样表示匹配)。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">correct_prediction = tf.equal(tf.argmax(y,<span class="number">1</span>), tf.argmax(y_,<span class="number">1</span>))</div></pre></td></tr></table></figure></p>
+<p>这行代码会给我们一组布尔值。为了确定正确预测项的比例，我们可以把布尔值转换成浮点数，然后取平均值。例如，[True, False, True, True] 会变成 [1, 0, 1, 1] ，取平均值后得到 0.75.<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">accuracy = tf.reduce_mean(tf.cast(correct_prediction, <span class="string">"float"</span>))</div></pre></td></tr></table></figure></p>
+<p>上述代码中，tf.cast将boolean数组转成int数组，最后求平均值，得到分类的准确率。<br>最后，我们计算所学习到的模型在测试数据集上面的正确率。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">print</span> sess.run(accuracy, feed_dict=&#123;x: mnist.test.images, y_: mnist.test.labels&#125;)</div></pre></td></tr></table></figure></p>
+<p>可以看到，在模型搭建完以后，我们只要为模型提供输入和输出，模型就能够自己进行训练和测试了。中间的求导，求梯度，反向传播等等繁杂的事情，tensorflow都会帮你自动完成。</p>
+<h2 id="代码汇总"><a href="#代码汇总" class="headerlink" title="代码汇总"></a>代码汇总</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> absolute_import</div><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> division</div><div class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</div><div class="line"><span class="keyword">import</span> argparse</div><div class="line"><span class="keyword">import</span> sys</div><div class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</div><div class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</div><div class="line"></div><div class="line">FLAGS = <span class="keyword">None</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">(_)</span>:</span></div><div class="line">    <span class="comment"># Import data</span></div><div class="line">    mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=<span class="keyword">True</span>)</div><div class="line"></div><div class="line">    <span class="comment"># Create the model</span></div><div class="line">    x = tf.placeholder(tf.float32, [<span class="keyword">None</span>, <span class="number">784</span>])</div><div class="line">    W = tf.Variable(tf.zeros([<span class="number">784</span>, <span class="number">10</span>]))</div><div class="line">    b = tf.Variable(tf.zeros([<span class="number">10</span>]))</div><div class="line">    y = tf.matmul(x, W) + b</div><div class="line"></div><div class="line">    <span class="comment"># Define loss and optimizer</span></div><div class="line">    y_ = tf.placeholder(tf.float32, [<span class="keyword">None</span>, <span class="number">10</span>])</div><div class="line"></div><div class="line">    <span class="comment"># The raw formulation of cross-entropy,</span></div><div class="line">    <span class="comment">#</span></div><div class="line">    <span class="comment">#   tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(tf.nn.softmax(y)),</span></div><div class="line">    <span class="comment">#                                 reduction_indices=[1]))</span></div><div class="line">    <span class="comment">#</span></div><div class="line">    <span class="comment"># can be numerically unstable.</span></div><div class="line">    <span class="comment">#</span></div><div class="line">    <span class="comment"># So here we use tf.nn.softmax_cross_entropy_with_logits on the raw</span></div><div class="line">    <span class="comment"># outputs of 'y', and then average across the batch.</span></div><div class="line">    cross_entropy = tf.reduce_mean(</div><div class="line">        tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))</div><div class="line">    train_step = tf.train.GradientDescentOptimizer(<span class="number">0.5</span>).minimize(cross_entropy)</div><div class="line"></div><div class="line">    sess = tf.InteractiveSession()</div><div class="line">    tf.global_variables_initializer().run()</div><div class="line">    <span class="comment"># Train</span></div><div class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> range(<span class="number">1000</span>):</div><div class="line">      batch_xs, batch_ys = mnist.train.next_batch(<span class="number">100</span>)</div><div class="line">      sess.run(train_step, feed_dict=&#123;x: batch_xs, y_: batch_ys&#125;)</div><div class="line"></div><div class="line">    <span class="comment"># Test trained model</span></div><div class="line">    correct_prediction = tf.equal(tf.argmax(y, <span class="number">1</span>), tf.argmax(y_, <span class="number">1</span>))</div><div class="line">    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))</div><div class="line">    print(sess.run(accuracy, feed_dict=&#123;x: mnist.test.images,</div><div class="line">                                      y_: mnist.test.labels&#125;))</div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    parser = argparse.ArgumentParser()</div><div class="line">    parser.add_argument(<span class="string">'--data_dir'</span>, type=str, default=<span class="string">'/tmp/tensorflow/mnist/input_data'</span>,</div><div class="line">                      help=<span class="string">'Directory for storing input data'</span>)</div><div class="line">    FLAGS, unparsed = parser.parse_known_args()</div><div class="line">    tf.app.run(main=main, argv=[sys.argv[<span class="number">0</span>]] + unparsed)</div></pre></td></tr></table></figure>
+<p>在测试集上的分类准确率在91%左右。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2017/04/23/hello-world/">
+                    Hello World
+                </a>
+            </div>
+        
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TensorFlow的运行流程"><span class="toc-number">2.</span> <span class="toc-text">TensorFlow的运行流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#概念描述"><span class="toc-number">3.</span> <span class="toc-text">概念描述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Tensor"><span class="toc-number">3.1.</span> <span class="toc-text">Tensor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Variable"><span class="toc-number">3.2.</span> <span class="toc-text">Variable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#placeholder"><span class="toc-number">3.3.</span> <span class="toc-text">placeholder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Session"><span class="toc-number">3.4.</span> <span class="toc-text">Session</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型构建"><span class="toc-number">4.</span> <span class="toc-text">模型构建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型训练"><span class="toc-number">5.</span> <span class="toc-text">模型训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型评估"><span class="toc-number">6.</span> <span class="toc-text">模型评估</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码汇总"><span class="toc-number">7.</span> <span class="toc-text">代码汇总</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2017/04/23/hello-world/" title="上一篇: Hello World">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2017/04/27/tensorflow-1-basic-usage/">TensorFlow系列（一）：TensorFlow的基本用法</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/23/hello-world/">Hello World</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/22/test2/">test2</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/04/22/test/">test</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2015-2017 胡江鹭
+            </div>
+            
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        var oOpenInNew = {
+            
+            
+            
+            
+            
+            
+             archives: ".archive-article-title", 
+             miniArchives: "a.post-list-link", 
+            
+             friends: "#js-friends a", 
+             socail: ".social a" 
+        }
+        for (var x in oOpenInNew) {
+            $(oOpenInNew[x]).attr("target", "_blank");
+        }
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
